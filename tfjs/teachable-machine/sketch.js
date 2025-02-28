@@ -139,7 +139,7 @@ async function trainModel() {
 
 function classifyImage() {
   tf.tidy(() => {
-    const imageFeatures = calculateFeaturesOnCurrentFrame();
+    const imageFeatures = getFeatures(video.elt);
     let prediction = teachableModel.predict(imageFeatures.expandDims()).squeeze();
     let highestIndex = prediction.argMax().arraySync();
     let predictionArray = prediction.arraySync();
