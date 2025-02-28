@@ -1,3 +1,6 @@
+// Reference
+// https://codelabs.developers.google.com/tensorflowjs-transfer-learning-teachable-machine
+
 // interface stuff
 let statusP;
 let video;
@@ -40,7 +43,7 @@ function setup() {
     btn.attribute('index', i);
     btn.mousePressed(collectData);
     dataButtons.push(btn);
-    // Start a zero count for each class
+    // Start a zero count for each label
     examplesCount[i] = 0;
   }
 
@@ -75,7 +78,7 @@ function collectData() {
   let index = parseInt(this.elt.getAttribute('index'));
 
   // capture image features from the current video frame
-  const imageFeatures = calculateFeaturesOnCurrentFrame();
+  const imageFeatures = getFeatures(video.elt);
 
   trainingDataInputs.push(imageFeatures);
   trainingDataOutputs.push(index);
@@ -88,10 +91,10 @@ function collectData() {
   statusP.html(statusStr);
 }
 
-function calculateFeaturesOnCurrentFrame() {
+function getFeatures(img) {
   return tf.tidy(() => {
     // Grab pixels from video
-    let videoFrameAsTensor = tf.browser.fromPixels(video.elt);
+    let videoFrameAsTensor = tf.browser.fromPixels(img);
     // Resize to 224x224
     let resizedTensorFrame = tf.image.resizeBilinear(
       videoFrameAsTensor,
@@ -108,21 +111,24 @@ function calculateFeaturesOnCurrentFrame() {
 }
 
 async function trainModel() {
-  // Shuffle inputs and outputs together
+  // Shuffle the data
   tf.util.shuffleCombo(trainingDataInputs, trainingDataOutputs);
 
+  // Convert to tensors
   const outputsAsTensor = tf.tensor1d(trainingDataOutputs, 'int32');
   const oneHotOutputs = tf.oneHot(outputsAsTensor, LABELS.length);
   const inputsAsTensor = tf.stack(trainingDataInputs);
 
   // Train
   let results = await teachableModel.fit(inputsAsTensor, oneHotOutputs, {
+    // Shuffle per epoch
     shuffle: true,
     batchSize: 5,
     epochs: 10,
     callbacks: { onEpochEnd: (epoch, logs) => console.log('Epoch', epoch, logs) },
   });
 
+  // dispose memory! could use tf.tidy() instead?
   outputsAsTensor.dispose();
   oneHotOutputs.dispose();
   inputsAsTensor.dispose();
