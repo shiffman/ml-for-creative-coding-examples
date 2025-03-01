@@ -9,6 +9,7 @@ let hands = [];
 // Neural network model
 let regressionModel;
 
+// Interface for training data collection
 let trainingSlider;
 let trainingValueP;
 
@@ -19,18 +20,25 @@ function preload() {
 
 function setup() {
   createCanvas(640, 480);
+
+  // Start video
   video = createCapture(VIDEO, { flipped: true });
   video.size(640, 480);
   video.hide();
+
+  // Start handpose
   handPose.detectStart(video, gotHands);
 
+  // Slider for target output
   trainingSlider = createSlider(0, 1, 0.5, 0.01);
   trainingValueP = createP(`Training Value: ${trainingSlider.value()}`);
   trainingSlider.input(updateValue);
 
+  // Button to collect data
   let collectButton = createButton('Collect Data');
   collectButton.mousePressed(collectData);
 
+  // Button to save data
   let saveButton = createButton('Save Data');
   saveButton.mousePressed(saveData);
 
@@ -45,6 +53,7 @@ function setup() {
   regressionModel = ml5.neuralNetwork(options);
 }
 
+// Collect data
 function collectData() {
   if (hands.length > 0) {
     // Get the hand pose data and flatten it for the neural network
@@ -52,11 +61,13 @@ function collectData() {
     let inputData = flattenData(hand);
     // Add training data using the slider
     let target = trainingSlider.value();
+    // Just one output but still has to be in an array
     regressionModel.addData(inputData, [target]);
     console.log(`logging data for ${target}`);
   }
 }
 
+// Save Data
 function saveData() {
   // Normalize the collected data to improve training performance
   regressionModel.normalizeData();
@@ -64,6 +75,7 @@ function saveData() {
   regressionModel.saveData();
 }
 
+// Show value in p DOM element
 function updateValue() {
   trainingValueP.html(`Training Value: ${trainingSlider.value()}`);
 }

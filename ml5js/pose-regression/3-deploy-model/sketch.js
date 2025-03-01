@@ -6,7 +6,7 @@ let handPose;
 let video;
 let hands = [];
 
-// Neural network classifier
+// Neural network regression model
 let regressionModel;
 let predicting = false;
 let predictedValue = 0;
@@ -29,8 +29,7 @@ function setup() {
   handPose.detectStart(video, gotHands);
 
   // Configure the neural network
-  // The network will perform classification (as opposed to regression)
-  // Debug mode will show the training visualization
+  // The network will perform regression
   let options = {
     task: 'regression',
     debug: true,
@@ -53,7 +52,7 @@ function modelLoaded() {
 function gotHands(results) {
   hands = results;
 
-  // Only classify if not already classifying and at least one hand detected
+  // Only predict if not already predicting and at least one hand detected
   if (!predicting && hands.length > 0) {
     // Prevent overlapping classifications
     predicting = true;
@@ -71,11 +70,11 @@ function predictData() {
 }
 
 function gotResults(results) {
-  // Store and display the classification result
+  // Store the regression result, it's just one number!
   predictedValue = results[0].value;
   console.log(predictedValue);
 
-  // Reset flag so the next fresh detection can be classified
+  // Reset flag so the next fresh detection can be predicted
   predicting = false;
 }
 
@@ -91,7 +90,7 @@ function flattenData(hand) {
 }
 
 function draw() {
-  // Display video feed
+  // Draw video
   image(video, 0, 0, width, height);
 
   // Draw keypoints
@@ -105,12 +104,12 @@ function draw() {
     }
   }
 
-  // Black rectangle for classification label
+  // Black rectangle for showing predicted value
   fill(0);
   noStroke();
   rect(0, height - 60, width, 60);
 
-  // Display classification label
+  // Show predicted value
   fill(255);
   textSize(32);
   textAlign(CENTER, CENTER);

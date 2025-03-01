@@ -13,7 +13,7 @@ function setup() {
   ml5.setBackend('webgl');
 
   // Configure the neural network
-  // The network will perform classification (as opposed to regression)
+  // The network will perform regression
   // Debug mode will show the training visualization
   let options = {
     // inputs: 42,
@@ -34,6 +34,7 @@ function dataLoaded() {
   // Train the neural network
   // Epochs are the number of times the network will see the data
   // Learning rate is the step size for the optimizer (weight adjustments according to error)
+  // Validation split is the portion of the data used for validation, since I have so little data I'm using 0.0
   regressionModel.train(
     { epochs: 100, validationSplit: 0.0, learningRate: 0.001 },
     finishedTraining
