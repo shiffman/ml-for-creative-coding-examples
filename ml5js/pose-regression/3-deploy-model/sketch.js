@@ -1,4 +1,4 @@
-// In-class demo training a hand pose classifier
+// In-class demo training a hand pose regression model
 // https://github.com/shiffman/ML-for-Creative-Coding
 
 // Initialize variables for ML hand pose detection
